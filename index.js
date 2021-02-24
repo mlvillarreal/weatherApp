@@ -1,6 +1,7 @@
 let newCityGo = document.querySelector('#goBtn');
 let newCityInput = document.querySelector('#city-input');
 let weatherContainer = document.querySelector('#weather-container');
+let myWeatherBtn = document.querySelector('#myWeather');
  
 
 
@@ -34,10 +35,10 @@ async function getWeatherStatus(city) {
 const createCardHtml = (city, country, temperature, ST, description) => {
     img = weatherImage(description)
     let weatherCard = `
-    <div class=" text-center card mb-3" style="max-width: 540px;">
+    <div class=" text-center card  mb-3" style="max-width: 540px;">
         <div class="row no-gutters">
             <div class="col-md-4">
-                <img src=${img} class="card-img mt-5" alt="...">
+                <img src=${img} class="card-img mt-4" alt="...">
             </div>
             <div class="col-md-8">
                 <div class="card-body">
@@ -53,7 +54,7 @@ const createCardHtml = (city, country, temperature, ST, description) => {
 
 const createErrorCardHtml = (message, code) => {
     let weatherErrorCard = `
-    <div class="card mb-3">
+    <div class="card bg-light mb-3">
         <div class="card-body">
             <h2 class="card-title text-center">Oops!</h3>
             <h4 class="card-text">${message}</h4>
@@ -88,5 +89,61 @@ let weatherImage = (description) => {
 }
 
 
+myWeatherBtn.addEventListener('click', myWeather);
 
+async function myWeather() {
+    const status = document.querySelector('#status');
+    // const mapLink = document.querySelector('#map-link');
+    // let coordinates;
+  
+    // mapLink.href = '';
+    // mapLink.textContent = '';
+  
+    async function success(position) {
+        const latitude  = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        // let coordinates = [latitude, longitude]; 
+  
+        status.textContent = '';
+    //   mapLink.href = `https://www.openstreetmap.org/#map=18/${latitude}/${longitude}`;
+    //   mapLink.textContent = `Latitude: ${latitude} °, Longitude: ${longitude} °`;
+        let weatherInfo = await getWeatherStatusCoord(latitude, longitude);
+        if (weatherInfo.cod!=200) {
+            let message = createErrorCardHtml(weatherInfo.message, weatherInfo.cod);
+            weatherContainer.innerHTML = message;
+        }
+        else{
+            let cityName = weatherInfo.name;
+            let cityCountry = weatherInfo.sys.country;
+            let temperature = weatherInfo.main.temp;
+            let ST = weatherInfo.main.feels_like;
+            let description = weatherInfo.weather[0].description;
+            const cardHtml = createCardHtml(cityName, cityCountry, temperature, ST, description );
+            weatherContainer.innerHTML = cardHtml;
+        };
+      
+    }
+  
+    function error() {
+      status.textContent = 'Unable to retrieve your location';
+    }
+  
+    if(!navigator.geolocation) {
+      status.textContent = 'Geolocation is not supported by your browser';
+    } 
+    else {
+      status.textContent = 'Locating…';
+      coordinates = navigator.geolocation.getCurrentPosition(success, error);
+    }    
+  
+};
+  
+async function getWeatherStatusCoord(lat, lon) {
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&cnt=1&appid=74cf9aad542ba0362b638cca56523499&units=metric`);    
+    const weather = await response.json();
+    return weather;
 
+};
+
+  
+  
