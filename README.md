@@ -1,7 +1,7 @@
 # WeatherApp
 
 The project uses [openweather.org](https://openweathermap.org/guide) to grab the current weather in a location of your choice and by clicking in the button 'My weather', you get the weather where you are (You will need to enable the geolocalisation for your browser).
-![](./Images/weather-app.JPG)
+![](WeatherApp.PNG)
 
 This project was part of the Junior Web Developer Bootcamp by Generation
 
