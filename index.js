@@ -2,13 +2,13 @@ let newCityGo = document.querySelector('#goBtn');
 let newCityInput = document.querySelector('#city-input');
 let weatherContainer = document.querySelector('#weather-container');
 let myWeatherBtn = document.querySelector('#myWeather');
+let status = document.querySelector('#status');
  
-
 
 newCityGo.addEventListener('click', async () => { 
     let selectedCity = newCityInput.value;
-    // console.log(selectedCity);
     let weatherInfo = await getWeatherStatus(selectedCity);
+    //If the code returned by the API is not 200 there is an error in the request
     if (weatherInfo.cod!=200) {
         let message = createErrorCardHtml(weatherInfo.message, weatherInfo.cod);
         weatherContainer.innerHTML = message;
@@ -24,6 +24,7 @@ newCityGo.addEventListener('click', async () => {
     };
 });
 
+//Call the API passing the Citi typed by the user
 async function getWeatherStatus(city) {
     const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=74cf9aad542ba0362b638cca56523499&units=metric`);
         
@@ -31,7 +32,7 @@ async function getWeatherStatus(city) {
     return weather;
 
 };
-
+ //Create HTML card when the user enters a valid city
 const createCardHtml = (city, country, temperature, ST, description) => {
     img = weatherImage(description)
     let weatherCard = `
@@ -51,7 +52,7 @@ const createCardHtml = (city, country, temperature, ST, description) => {
     </div>`
     return weatherCard;
 }
-
+//Create HTML card when there is an error
 const createErrorCardHtml = (message, code) => {
     let weatherErrorCard = `
     <div class="card bg-light mb-3">
@@ -64,6 +65,8 @@ const createErrorCardHtml = (message, code) => {
     </div>`
     return weatherErrorCard;
 }
+
+//choose the image depending on the weather
 let weatherImage = (description) => {
     if (description.includes("rain")){
         let img = "./images/undraw_Raining_re_4b55.png"
@@ -89,24 +92,19 @@ let weatherImage = (description) => {
 }
 
 
-myWeatherBtn.addEventListener('click', myWeather);
-
-async function myWeather() {
-    const status = document.querySelector('#status');
-    // const mapLink = document.querySelector('#map-link');
-    // let coordinates;
   
-    // mapLink.href = '';
-    // mapLink.textContent = '';
+
+//when de user cliks the button 'my weather' the website looks for the location of the user
+  
+myWeatherBtn.addEventListener('click', myWeather) 
+async function myWeather() {
   
     async function success(position) {
-        const latitude  = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        // let coordinates = [latitude, longitude]; 
-  
+        const latitude  =await position.coords.latitude;
+        const longitude =await position.coords.longitude;
         status.textContent = '';
-    //   mapLink.href = `https://www.openstreetmap.org/#map=18/${latitude}/${longitude}`;
-    //   mapLink.textContent = `Latitude: ${latitude} °, Longitude: ${longitude} °`;
+
+        //once the location is gathered, the API is called again.
         let weatherInfo = await getWeatherStatusCoord(latitude, longitude);
         if (weatherInfo.cod!=200) {
             let message = createErrorCardHtml(weatherInfo.message, weatherInfo.cod);
@@ -137,13 +135,11 @@ async function myWeather() {
     }    
   
 };
-  
+
+//call the Wwather API by passing the user coordinates
 async function getWeatherStatusCoord(lat, lon) {
     const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&cnt=1&appid=74cf9aad542ba0362b638cca56523499&units=metric`);    
     const weather = await response.json();
     return weather;
 
 };
-
-  
-  
